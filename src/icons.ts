@@ -46,26 +46,28 @@ const COLORS: Record<IconCategory, { main: string; dark: string }> = {
 };
 
 export function categoryFromType(id?: number | string, valeur = ''): IconCategory {
+  // The API's French `valeur` is the reliable signal (type ids are inconsistent —
+  // e.g. "point d'eau" is id 23, not a refuge).
+  const v = valeur.toLowerCase();
+  if (/(eau|source|fontaine|puits)/.test(v)) return 'eau';
+  if (/refuge/.test(v)) return 'refuge';
+  if (/g[iî]te/.test(v)) return 'gite';
+  if (/(grotte|abri|bivouac|tr[ée]pied|tente)/.test(v)) return 'abri';
+  if (/sommet/.test(v)) return 'sommet';
+  if (/cabane/.test(v)) return 'cabane';
+  // Fallback by id only when the label is missing.
   switch (typeof id === 'string' ? Number(id) : id) {
     case 10:
-    case 23:
       return 'refuge';
-    case 7:
-      return 'cabane';
     case 9:
       return 'gite';
-    case 6:
+    case 7:
+      return 'cabane';
+    case 23:
       return 'eau';
     case 1:
       return 'sommet';
   }
-  const v = valeur.toLowerCase();
-  if (/(eau|source|fontaine|puits)/.test(v)) return 'eau';
-  if (/(refuge)/.test(v)) return 'refuge';
-  if (/(g[iî]te)/.test(v)) return 'gite';
-  if (/(grotte|abri|bivouac|trepied|trépied)/.test(v)) return 'abri';
-  if (/(sommet|pic|col)/.test(v)) return 'sommet';
-  if (/(cabane)/.test(v)) return 'cabane';
   return 'divers';
 }
 

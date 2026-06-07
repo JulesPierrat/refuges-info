@@ -18,6 +18,7 @@ export const t = {
   massifsTitle: () => msg('Mountain ranges', { id: 'massifs_title' }),
   massifsLoading: () => msg('Loading mountain ranges…', { id: 'massifs_loading' }),
   massifsFilter: () => msg('Filter ranges…', { id: 'massifs_filter' }),
+  abrisFilter: () => msg('Filter shelters…', { id: 'abris_filter' }),
 
   massifPoints: () => msg('Points', { id: 'massif_points' }),
   massifLoading: () => msg('Loading points…', { id: 'massif_loading' }),
@@ -26,7 +27,9 @@ export const t = {
   basemapToggle: () => msg('Change basemap', { id: 'basemap_toggle' }),
   basemapMap: () => msg('Map', { id: 'basemap_map' }),
   basemapTopo: () => msg('OpenTopoMap', { id: 'basemap_topo' }),
+  basemapIgnTopo: () => msg('IGN topo', { id: 'basemap_ign_topo' }),
   basemapIgn: () => msg('IGN aerial', { id: 'basemap_ign' }),
+  basemapSwiss: () => msg('SwissTopo 1:25k', { id: 'basemap_swiss' }),
 
   detailMore: () => msg('See full page', { id: 'detail_more' }),
   detailClose: () => msg('Close', { id: 'detail_close' }),

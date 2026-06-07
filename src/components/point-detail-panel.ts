@@ -1,7 +1,7 @@
 import { LitElement, html, css, nothing, type PropertyValues } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { updateWhenLocaleChanges } from '@lit/localize';
-import { getPointFull, type PointFull } from '../api/client';
+import { getPointFull, type PointComment, type PointFull } from '../api/client';
 import { SITE_BASE } from '../api/config';
 import { iconAttrsFromPoint, iconDataUri, type PointIconInput } from '../icons';
 import { t } from '../labels';
@@ -64,8 +64,12 @@ export class PointDetailPanel extends LitElement {
     p.body { margin: 0; font-size: 0.9rem; line-height: 1.45; color: var(--text); white-space: pre-line; }
 
     .photos { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2); }
-    .photos a { display: block; aspect-ratio: 4 / 3; border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-sunken); }
+    .photos button {
+      display: block; padding: 0; border: none; cursor: pointer;
+      aspect-ratio: 4 / 3; border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-sunken);
+    }
     .photos img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photos button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
     .more {
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -97,6 +101,22 @@ export class PointDetailPanel extends LitElement {
   disconnectedCallback() {
     super.disconnectedCallback();
     this.abort?.abort();
+  }
+
+  private get photos(): PointComment[] {
+    return (this.point?.commentaires ?? []).filter((c) => c.photo).slice(0, 12);
+  }
+
+  /** Ask the shell to open the full-screen gallery (a top-level modal). */
+  private openGallery(index: number) {
+    const photos = this.photos.map((c) => ({
+      full: SITE_BASE + c.photo!,
+      auteur: c.auteur,
+      date: c.date_photo,
+    }));
+    this.dispatchEvent(
+      new CustomEvent('open-gallery', { detail: { photos, index }, bubbles: true, composed: true }),
+    );
   }
 
   private async load(id: number) {
@@ -141,7 +161,7 @@ export class PointDetailPanel extends LitElement {
     const beds = Number(p.places?.valeur) || 0;
     const access = p.acces?.valeur?.trim();
     const desc = (p.description?.valeur || p.remarque?.valeur)?.trim();
-    const photos = (p.commentaires ?? []).filter((c) => c.photo).slice(0, 8);
+    const photos = this.photos;
     const chips = this.infoChips(p);
 
     return html`
@@ -170,10 +190,10 @@ export class PointDetailPanel extends LitElement {
                 <h2>${t.detailPhotos()}</h2>
                 <div class="photos">
                   ${photos.map(
-                    (c) => html`
-                      <a href=${SITE_BASE + c.photo!} target="_blank" rel="noopener">
+                    (c, i) => html`
+                      <button @click=${() => this.openGallery(i)} aria-label="${t.detailPhotos()} ${i + 1}">
                         <img src=${photoUrl(c.photo!)} loading="lazy" alt="" />
-                      </a>
+                      </button>
                     `,
                   )}
                 </div>

@@ -16,6 +16,10 @@ export interface Massif {
 
 type MassifProps = { id: number; nom: string; couleur?: string; lien?: string };
 type MassifFeature = GeoJSON.Feature<GeoJSON.MultiPolygon | GeoJSON.Polygon, MassifProps>;
+export type MassifCollection = GeoJSON.FeatureCollection<
+  GeoJSON.MultiPolygon | GeoJSON.Polygon,
+  MassifProps
+>;
 
 function geometryBbox(geom: GeoJSON.MultiPolygon | GeoJSON.Polygon): Bbox {
   let w = 180, s = 90, e = -180, n = -90;
@@ -31,28 +35,37 @@ function geometryBbox(geom: GeoJSON.MultiPolygon | GeoJSON.Polygon): Bbox {
   return [w, s, e, n];
 }
 
-let cache: Promise<Massif[]> | undefined;
+let rawCache: Promise<MassifCollection> | undefined;
+let listCache: Promise<Massif[]> | undefined;
 
-/** Cached for the session — the list is large (~1 MB) and rarely changes. */
-export function getMassifs(signal?: AbortSignal): Promise<Massif[]> {
-  if (!cache) cache = fetchMassifs(signal);
-  return cache;
+/** Raw massif polygons (with geometry) — used to draw clickable contours. */
+export function getMassifPolygons(signal?: AbortSignal): Promise<MassifCollection> {
+  if (!rawCache) rawCache = fetchRaw(signal);
+  return rawCache;
 }
 
-async function fetchMassifs(signal?: AbortSignal): Promise<Massif[]> {
+/** The 494 massifs as a sorted list (derived from the same cached fetch). */
+export function getMassifs(signal?: AbortSignal): Promise<Massif[]> {
+  if (!listCache)
+    listCache = getMassifPolygons(signal).then((data) =>
+      data.features
+        .map((f: MassifFeature) => ({
+          id: f.properties.id,
+          nom: f.properties.nom.trim(),
+          couleur: f.properties.couleur ?? 'var(--brand)',
+          lien: f.properties.lien ?? '#',
+          bbox: geometryBbox(f.geometry),
+        }))
+        .sort((a, b) => a.nom.localeCompare(b.nom, 'fr')),
+    );
+  return listCache;
+}
+
+async function fetchRaw(signal?: AbortSignal): Promise<MassifCollection> {
   const res = await fetch(`${API_BASE}/api/polygones?type_polygon=1&format=geojson`, { signal });
   if (!res.ok) throw new Error(`massifs: ${res.status} ${res.statusText}`);
-  const data = (await res.json()) as GeoJSON.FeatureCollection<
-    GeoJSON.MultiPolygon | GeoJSON.Polygon,
-    MassifProps
-  >;
-  return data.features
-    .map((f: MassifFeature) => ({
-      id: f.properties.id,
-      nom: f.properties.nom.trim(),
-      couleur: f.properties.couleur ?? 'var(--brand)',
-      lien: f.properties.lien ?? '#',
-      bbox: geometryBbox(f.geometry),
-    }))
-    .sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
+  const data = (await res.json()) as MassifCollection;
+  // Trim names in place so the contour labels match the list.
+  for (const f of data.features) f.properties.nom = f.properties.nom.trim();
+  return data;
 }

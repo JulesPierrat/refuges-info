@@ -7,14 +7,21 @@ import './discovery-panel';
 import './massif-panel';
 import './point-detail-panel';
 import './map-legend';
+import './photo-modal';
+import type { GalleryPhoto } from './photo-modal';
 import { type AppGlobe, type Basemap, BASEMAPS } from './app-globe';
-import { getPoint } from '../api/client';
-import type { SearchResult } from '../api/search';
-import type { Massif } from '../api/massifs';
+import { getMassifPolygons, type Massif } from '../api/massifs';
 import { applyLocale, getLocale, type AppLocale } from '../i18n';
-import { categoryFromSlug, composeIconSvg } from '../icons';
 import { massifSlug } from '../slug';
-import { currentRoute, navigate, onRouteChange, type Route } from '../router';
+import {
+  closePointHash,
+  currentPointId,
+  currentRoute,
+  navigate,
+  onRouteChange,
+  openPointHash,
+  type Route,
+} from '../router';
 import { t } from '../labels';
 
 type Theme = 'light' | 'dark';
@@ -110,9 +117,10 @@ export class AppShell extends LitElement {
   @query('app-globe') private globe!: AppGlobe;
   @state() private theme: Theme | null = null;
   @state() private route: Route = currentRoute();
-  @state() private basemap: Basemap = 'vector';
+  @state() private basemap: Basemap = 'ign-ortho';
   @state() private basemapMenuOpen = false;
   @state() private selectedPointId?: number;
+  @state() private gallery?: { photos: GalleryPhoto[]; index: number };
 
   private offRoute?: () => void;
 
@@ -125,28 +133,64 @@ export class AppShell extends LitElement {
     super.connectedCallback();
     const saved = localStorage.getItem(THEME_KEY) as Theme | null;
     if (saved === 'light' || saved === 'dark') this.applyTheme(saved);
+    this.selectedPointId = currentPointId();
     this.offRoute = onRouteChange((r) => {
+      const routeChanged = r.name !== this.route.name || (r as { slug?: string }).slug !== (this.route as { slug?: string }).slug;
       this.route = r;
-      this.selectedPointId = undefined;
-      if (r.name === 'home') this.globe?.showPoints(undefined);
+      this.selectedPointId = currentPointId();
+      if (routeChanged) {
+        if (r.name === 'home') this.globe?.showPoints(undefined);
+        this.updateMassifOverlay(r);
+      }
     });
+    this.updateMassifOverlay(this.route);
     this.addEventListener('open-point', this.onOpenPoint as EventListener);
+    this.addEventListener('open-massif', this.onOpenMassif as EventListener);
     this.addEventListener('close-detail', this.onCloseDetail);
+    this.addEventListener('open-gallery', this.onOpenGallery as EventListener);
+    this.addEventListener('close-gallery', this.onCloseGallery);
   }
   disconnectedCallback() {
     super.disconnectedCallback();
     this.offRoute?.();
     this.removeEventListener('open-point', this.onOpenPoint as EventListener);
+    this.removeEventListener('open-massif', this.onOpenMassif as EventListener);
     this.removeEventListener('close-detail', this.onCloseDetail);
+    this.removeEventListener('open-gallery', this.onOpenGallery as EventListener);
+    this.removeEventListener('close-gallery', this.onCloseGallery);
   }
 
-  /** A point clicked on the map or in the massif list. */
-  private onOpenPoint = (e: CustomEvent<{ id: number; lng?: number; lat?: number }>) => {
-    this.selectedPointId = e.detail.id;
+  private onOpenGallery = (e: CustomEvent<{ photos: GalleryPhoto[]; index: number }>) => {
+    this.gallery = e.detail;
+  };
+  private onCloseGallery = () => {
+    this.gallery = undefined;
+  };
+
+  /** Show clickable massif contours on home; hide them elsewhere. */
+  private async updateMassifOverlay(route: Route) {
+    if (route.name !== 'home') {
+      this.globe?.showMassifContours(undefined);
+      return;
+    }
+    try {
+      this.globe?.showMassifContours(await getMassifPolygons());
+    } catch (err) {
+      console.error('massif contours', err);
+    }
+  }
+
+  private onOpenMassif = (e: CustomEvent<{ nom: string }>) => {
+    navigate(`/massif/${massifSlug(e.detail.nom)}`);
+  };
+
+  /** A point clicked on the map or in the massif list → fly + deep-link via hash. */
+  private onOpenPoint = (e: CustomEvent<{ id: number; nom?: string; lng?: number; lat?: number }>) => {
     if (e.detail.lng != null && e.detail.lat != null) this.globe.flyTo(e.detail.lng, e.detail.lat);
+    openPointHash(e.detail.id, e.detail.nom ? massifSlug(e.detail.nom) : undefined);
   };
   private onCloseDetail = () => {
-    this.selectedPointId = undefined;
+    closePointHash();
   };
 
   private applyTheme(theme: Theme) {
@@ -169,7 +213,13 @@ export class AppShell extends LitElement {
     this.globe.setBasemap(kind);
   }
   private basemapLabel(kind: Basemap): string {
-    return kind === 'vector' ? t.basemapMap() : kind === 'opentopomap' ? t.basemapTopo() : t.basemapIgn();
+    switch (kind) {
+      case 'vector': return t.basemapMap();
+      case 'opentopomap': return t.basemapTopo();
+      case 'ign-topo': return t.basemapIgnTopo();
+      case 'ign-ortho': return t.basemapIgn();
+      case 'swisstopo': return t.basemapSwiss();
+    }
   }
 
   private goHome(e: Event) {
@@ -177,20 +227,6 @@ export class AppShell extends LitElement {
     navigate('/');
   }
 
-  /** Search result selected → resolve its coordinates and fly there. */
-  private async onPointSelected(e: CustomEvent<SearchResult>) {
-    try {
-      const fc = await getPoint(e.detail.id, 'simple');
-      const geom = fc.features[0]?.geometry;
-      if (geom?.type === 'Point') {
-        const icon = composeIconSvg({ category: categoryFromSlug(e.detail.typeSlug) });
-        this.globe.flyToPoint(geom.coordinates[0], geom.coordinates[1], icon);
-      }
-      this.selectedPointId = e.detail.id;
-    } catch (err) {
-      console.error('resolve point', err);
-    }
-  }
   private onMassifSelected(e: CustomEvent<Massif>) {
     navigate(`/massif/${massifSlug(e.detail.nom)}`);
   }
@@ -261,7 +297,6 @@ export class AppShell extends LitElement {
 
       <div
         class="panel"
-        @point-selected=${this.onPointSelected}
         @massif-selected=${this.onMassifSelected}
         @show-massif=${this.onShowMassif}
       >
@@ -277,6 +312,13 @@ export class AppShell extends LitElement {
         : ''}
 
       <div class="legend-wrap"><map-legend></map-legend></div>
+
+      ${this.gallery
+        ? html`<photo-modal
+            .photos=${this.gallery.photos}
+            .startIndex=${this.gallery.index}
+          ></photo-modal>`
+        : ''}
     `;
   }
 }

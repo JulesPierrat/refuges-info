@@ -234,6 +234,18 @@
   <source>IGN aerial</source>
   <target>IGN ortho</target>
 </trans-unit>
+<trans-unit id="abris_filter">
+  <source>Filter shelters…</source>
+  <target>Filtrer les abris…</target>
+</trans-unit>
+<trans-unit id="basemap_swiss">
+  <source>SwissTopo 1:25k</source>
+  <target>SwissTopo</target>
+</trans-unit>
+<trans-unit id="basemap_ign_topo">
+  <source>IGN topo</source>
+  <target>IGN topo</target>
+</trans-unit>
 </body>
 </file>
 </xliff>

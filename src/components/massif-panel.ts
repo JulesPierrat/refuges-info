@@ -49,6 +49,15 @@ export class MassifPanel extends LitElement {
     }
     .title .sub { font-size: 0.78rem; color: var(--text-subtle); }
 
+    .filter { padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border); }
+    .filter input {
+      width: 100%; box-sizing: border-box; height: 38px;
+      padding: 0 var(--space-3); border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md); background: var(--bg-elevated);
+      color: var(--text); font: inherit;
+    }
+    .filter input::placeholder { color: var(--text-subtle); }
+    .filter input:focus-visible { outline: none; box-shadow: var(--focus-ring); border-color: var(--brand); }
     .scroll { overflow-y: auto; }
     .hint { padding: var(--space-3) var(--space-4); color: var(--text-subtle); font-size: 0.88rem; }
     ul { list-style: none; margin: 0; padding: var(--space-1) 0 var(--space-2); }
@@ -73,6 +82,7 @@ export class MassifPanel extends LitElement {
   @state() private points: PointFeature[] = [];
   @state() private loading = true;
   @state() private notFound = false;
+  @state() private filter = '';
 
   private abort?: AbortController;
 
@@ -94,6 +104,7 @@ export class MassifPanel extends LitElement {
     this.loading = true;
     this.notFound = false;
     this.points = [];
+    this.filter = '';
     this.abort?.abort();
     this.abort = new AbortController();
     try {
@@ -128,7 +139,7 @@ export class MassifPanel extends LitElement {
     const [lng, lat] = f.geometry.coordinates;
     this.dispatchEvent(
       new CustomEvent('open-point', {
-        detail: { id: f.properties.id, lng, lat },
+        detail: { id: f.properties.id, nom: f.properties.nom, lng, lat },
         bubbles: true,
         composed: true,
       }),
@@ -151,6 +162,17 @@ export class MassifPanel extends LitElement {
         </div>
       </header>
 
+      ${!this.loading && !this.notFound && this.points.length
+        ? html`<div class="filter">
+            <input
+              type="search"
+              placeholder=${t.abrisFilter()}
+              aria-label=${t.abrisFilter()}
+              @input=${(e: Event) => (this.filter = (e.target as HTMLInputElement).value)}
+            />
+          </div>`
+        : ''}
+
       <div class="scroll">
         ${this.loading
           ? html`<p class="hint">${t.massifLoading()}</p>`
@@ -158,7 +180,12 @@ export class MassifPanel extends LitElement {
             ? html`<p class="hint">${t.massifNotFound()}</p>`
             : html`
                 <ul>
-                  ${this.points.map(
+                  ${(this.filter
+                    ? this.points.filter((f) =>
+                        f.properties.nom.toLowerCase().includes(this.filter.toLowerCase()),
+                      )
+                    : this.points
+                  ).map(
                     (f) => html`
                       <li>
                         <button @click=${() => this.flyTo(f)}>

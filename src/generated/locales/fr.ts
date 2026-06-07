@@ -9,9 +9,12 @@
     /* eslint-disable @typescript-eslint/no-explicit-any */
 
     export const templates = {
-      'back': `Retour`,
+      'abris_filter': `Filtrer les abris…`,
+'back': `Retour`,
 'basemap_ign': `IGN ortho`,
+'basemap_ign_topo': `IGN topo`,
 'basemap_map': `Plan`,
+'basemap_swiss': `SwissTopo`,
 'basemap_toggle': `Changer de fond de carte`,
 'basemap_topo': `OpenTopoMap`,
 'cat_abri': `Abri / grotte`,
