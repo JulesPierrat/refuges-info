@@ -138,6 +138,7 @@ export class AppGlobe extends LitElement {
 
   private map?: MlMap;
   private marker?: Marker;
+  private pulse?: Marker;
   private basemap: Basemap = 'ign-ortho';
   private points?: PointCollection;
   private massifs?: MassifCollection;
@@ -382,6 +383,22 @@ export class AppGlobe extends LitElement {
   /** Move the camera to a point (no marker). */
   flyTo(lng: number, lat: number) {
     this.map?.flyTo({ center: [lng, lat], zoom: 13, pitch: 50, duration: 2000 });
+  }
+
+  /** Place a pulsing marker on the selected point (replaces the previous one). */
+  setSelectedPulse(lng: number, lat: number) {
+    if (!this.map) return;
+    this.pulse?.remove();
+    const el = document.createElement('div');
+    el.className = 'refuge-pulse';
+    el.innerHTML = '<span class="ring"></span><span class="dot"></span>';
+    this.pulse = new maplibregl.Marker({ element: el, anchor: 'center' })
+      .setLngLat([lng, lat])
+      .addTo(this.map);
+  }
+  clearSelectedPulse() {
+    this.pulse?.remove();
+    this.pulse = undefined;
   }
 
   /** Fly to a point and drop a marker — optionally the point's composed icon. */

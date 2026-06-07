@@ -126,6 +126,16 @@ export class PointDetailPanel extends LitElement {
     this.abort = new AbortController();
     try {
       this.point = await getPointFull(id, this.abort.signal);
+      const { long, lat } = this.point.coord ?? {};
+      if (long != null && lat != null) {
+        this.dispatchEvent(
+          new CustomEvent('point-located', {
+            detail: { id, lng: long, lat },
+            bubbles: true,
+            composed: true,
+          }),
+        );
+      }
     } catch (err) {
       if ((err as Error).name !== 'AbortError') console.error('point detail', err);
     } finally {

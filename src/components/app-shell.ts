@@ -138,6 +138,10 @@ export class AppShell extends LitElement {
       const routeChanged = r.name !== this.route.name || (r as { slug?: string }).slug !== (this.route as { slug?: string }).slug;
       this.route = r;
       this.selectedPointId = currentPointId();
+      if (this.selectedPointId == null) {
+        this.globe?.clearSelectedPulse();
+        this.lastFlownId = undefined;
+      }
       if (routeChanged) {
         if (r.name === 'home') this.globe?.showPoints(undefined);
         this.updateMassifOverlay(r);
@@ -145,6 +149,7 @@ export class AppShell extends LitElement {
     });
     this.updateMassifOverlay(this.route);
     this.addEventListener('open-point', this.onOpenPoint as EventListener);
+    this.addEventListener('point-located', this.onPointLocated as EventListener);
     this.addEventListener('open-massif', this.onOpenMassif as EventListener);
     this.addEventListener('close-detail', this.onCloseDetail);
     this.addEventListener('open-gallery', this.onOpenGallery as EventListener);
@@ -154,6 +159,7 @@ export class AppShell extends LitElement {
     super.disconnectedCallback();
     this.offRoute?.();
     this.removeEventListener('open-point', this.onOpenPoint as EventListener);
+    this.removeEventListener('point-located', this.onPointLocated as EventListener);
     this.removeEventListener('open-massif', this.onOpenMassif as EventListener);
     this.removeEventListener('close-detail', this.onCloseDetail);
     this.removeEventListener('open-gallery', this.onOpenGallery as EventListener);
@@ -184,11 +190,28 @@ export class AppShell extends LitElement {
     navigate(`/massif/${massifSlug(e.detail.nom)}`);
   };
 
+  /** Last point id we already flew the camera to (avoids a double fly). */
+  private lastFlownId?: number;
+
   /** A point clicked on the map or in the massif list → fly + deep-link via hash. */
   private onOpenPoint = (e: CustomEvent<{ id: number; nom?: string; lng?: number; lat?: number }>) => {
-    if (e.detail.lng != null && e.detail.lat != null) this.globe.flyTo(e.detail.lng, e.detail.lat);
+    if (e.detail.lng != null && e.detail.lat != null) {
+      this.globe.flyTo(e.detail.lng, e.detail.lat);
+      this.globe.setSelectedPulse(e.detail.lng, e.detail.lat);
+      this.lastFlownId = e.detail.id;
+    }
     openPointHash(e.detail.id, e.detail.nom ? massifSlug(e.detail.nom) : undefined);
   };
+
+  /** The detail panel resolved a point's coordinates (covers deep-link arrivals). */
+  private onPointLocated = (e: CustomEvent<{ id: number; lng: number; lat: number }>) => {
+    this.globe.setSelectedPulse(e.detail.lng, e.detail.lat);
+    if (this.lastFlownId !== e.detail.id) {
+      this.globe.flyTo(e.detail.lng, e.detail.lat);
+      this.lastFlownId = e.detail.id;
+    }
+  };
+
   private onCloseDetail = () => {
     closePointHash();
   };
@@ -232,7 +255,8 @@ export class AppShell extends LitElement {
   }
   private onShowMassif(e: CustomEvent<{ bbox: Parameters<AppGlobe['flyToBbox']>[0]; collection: Parameters<AppGlobe['showPoints']>[0] }>) {
     this.globe.showPoints(e.detail.collection);
-    this.globe.flyToBbox(e.detail.bbox);
+    // On a deep-link to a specific point, let the point's own fly win.
+    if (this.selectedPointId == null) this.globe.flyToBbox(e.detail.bbox);
   }
 
   render() {
