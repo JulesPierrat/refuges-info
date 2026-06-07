@@ -3,6 +3,10 @@
 Réécriture de l'interface web de [refuges.info](https://www.refuges.info), la base
 collaborative des refuges, cabanes non gardées, gîtes et points d'eau de montagne.
 
+**🌐 Démo : [refuges-info.vercel.app](https://refuges-info.vercel.app)**
+
+![Capture d'écran de l'application — page d'un massif](./docs/screenshot.png)
+
 **Périmètre : le front-end uniquement.** Le back-end (base PostgreSQL, contributions,
 photos, forum) n'est pas réimplémenté : cette application consomme l'[API publique
 existante](https://www.refuges.info/api/doc/) en lecture seule. Voir [ANALYSIS.md](./ANALYSIS.md)
