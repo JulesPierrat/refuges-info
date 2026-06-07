@@ -14,10 +14,10 @@ pour l'analyse complète du site actuel et de son API.
 - [Lit](https://lit.dev/) + TypeScript — composants web (Web Components)
 - [@lit/localize](https://lit.dev/docs/localization/overview/) — i18n (défaut **EN**, **EN + FR** en v1)
 - [MapLibre GL JS](https://maplibre.org/) — globe 3D + carte vectorielle WebGL
-- Fonds de carte : [OpenFreeMap](https://openfreemap.org/) (vectoriel, sans clé) et
-  [OpenTopoMap](https://opentopomap.org/) (raster topo) — bascule dans la barre
-- Relief : ombrage (*hillshade*) calculé depuis les tuiles DEM *terrarium*
-  hébergées sur **Amazon S3** (AWS Terrain Tiles)
+- Fonds de carte (liste déroulante) : [OpenFreeMap](https://openfreemap.org/)
+  (vectoriel, sans clé), [OpenTopoMap](https://opentopomap.org/) (raster topo) et
+  **IGN orthophotos** (photo aérienne, WMTS Géoplateforme sans clé)
+- Relief 3D : tuiles DEM *terrarium* hébergées sur **Amazon S3** (AWS Terrain Tiles)
 - API refuges.info — source de données (GeoJSON, CC By-Sa 2.0)
 
 Identité visuelle : voir [CHARTE_GRAPHIQUE.md](./CHARTE_GRAPHIQUE.md) (thèmes clair/sombre,
@@ -103,9 +103,12 @@ src/
 - **Clic sur un point** → panneau à droite (`<point-detail-panel>`) : infos
   principales, **photos** (miniatures issues des contributions) et bouton
   **« Voir plus »** vers la fiche complète sur refuges.info (détails, commentaires).
-- Le relief est rendu en **ombrage** (hillshade) et non en terrain 3D : `setTerrain`
-  faisait suivre l'élévation à la caméra, ce qui provoquait un saut désagréable au
-  relâchement du déplacement.
+- **Terrain 3D** activé (`setTerrain`, relief Amazon). L'inertie de déplacement est
+  désactivée (`dragPan: { maxSpeed: 0 }`) pour éviter le « glissement » de caméra au
+  relâchement du clic sur le terrain.
+- **Changement de fond de carte sans perte** : à chaque `setStyle`, MapLibre vide
+  sources, couches et images ; un indicateur `styleReady` garantit que les points
+  (et leurs icônes) sont ré-injectés au `style.load` suivant.
 
 ## Navigation & carte persistante
 

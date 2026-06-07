@@ -222,6 +222,18 @@
   <source>Shelter / cave</source>
   <target>Abri / grotte</target>
 </trans-unit>
+<trans-unit id="basemap_map">
+  <source>Map</source>
+  <target>Plan</target>
+</trans-unit>
+<trans-unit id="basemap_topo">
+  <source>OpenTopoMap</source>
+  <target>OpenTopoMap</target>
+</trans-unit>
+<trans-unit id="basemap_ign">
+  <source>IGN aerial</source>
+  <target>IGN ortho</target>
+</trans-unit>
 </body>
 </file>
 </xliff>

@@ -10,7 +10,10 @@
 
     export const templates = {
       'back': `Retour`,
+'basemap_ign': `IGN ortho`,
+'basemap_map': `Plan`,
 'basemap_toggle': `Changer de fond de carte`,
+'basemap_topo': `OpenTopoMap`,
 'cat_abri': `Abri / grotte`,
 'cat_cabane': `Cabane non gardée`,
 'cat_eau': `Point d'eau`,

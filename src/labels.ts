@@ -24,6 +24,9 @@ export const t = {
   massifNotFound: () => msg('Mountain range not found', { id: 'massif_not_found' }),
   back: () => msg('Back', { id: 'back' }),
   basemapToggle: () => msg('Change basemap', { id: 'basemap_toggle' }),
+  basemapMap: () => msg('Map', { id: 'basemap_map' }),
+  basemapTopo: () => msg('OpenTopoMap', { id: 'basemap_topo' }),
+  basemapIgn: () => msg('IGN aerial', { id: 'basemap_ign' }),
 
   detailMore: () => msg('See full page', { id: 'detail_more' }),
   detailClose: () => msg('Close', { id: 'detail_close' }),

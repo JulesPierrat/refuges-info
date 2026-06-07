@@ -7,7 +7,7 @@ import './discovery-panel';
 import './massif-panel';
 import './point-detail-panel';
 import './map-legend';
-import { type AppGlobe, type Basemap, BASEMAP_LABELS } from './app-globe';
+import { type AppGlobe, type Basemap, BASEMAPS } from './app-globe';
 import { getPoint } from '../api/client';
 import type { SearchResult } from '../api/search';
 import type { Massif } from '../api/massifs';
@@ -67,6 +67,24 @@ export class AppShell extends LitElement {
     .pill:focus-visible { outline: none; box-shadow: var(--focus-ring); }
     .pill svg { width: 20px; height: 20px; }
 
+    .basemap { position: relative; }
+    .basemap-menu {
+      position: absolute; top: calc(100% + 6px); right: 0; min-width: 180px;
+      padding: var(--space-1); z-index: 31;
+      background: var(--surface-glass); backdrop-filter: blur(14px) saturate(1.1);
+      border: 1px solid var(--surface-glass-brd); border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+    }
+    .basemap-menu button {
+      display: flex; align-items: center; gap: var(--space-2); width: 100%;
+      padding: var(--space-2) var(--space-3); border: none; border-radius: var(--radius-sm);
+      background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer;
+    }
+    .basemap-menu button:hover { background: var(--brand-soft); }
+    .basemap-menu button[aria-current='true'] { color: var(--brand); font-weight: 600; }
+    .basemap-menu .check { margin-left: auto; opacity: 0; }
+    .basemap-menu button[aria-current='true'] .check { opacity: 1; }
+
     .panel {
       position: absolute;
       top: calc(var(--space-4) + 60px); left: var(--space-4); bottom: var(--space-4);
@@ -93,6 +111,7 @@ export class AppShell extends LitElement {
   @state() private theme: Theme | null = null;
   @state() private route: Route = currentRoute();
   @state() private basemap: Basemap = 'vector';
+  @state() private basemapMenuOpen = false;
   @state() private selectedPointId?: number;
 
   private offRoute?: () => void;
@@ -144,10 +163,13 @@ export class AppShell extends LitElement {
     const next: AppLocale = getLocale() === 'fr' ? 'en' : 'fr';
     applyLocale(next);
   }
-  private toggleBasemap() {
-    const next: Basemap = this.basemap === 'vector' ? 'opentopomap' : 'vector';
-    this.basemap = next;
-    this.globe.setBasemap(next);
+  private selectBasemap(kind: Basemap) {
+    this.basemap = kind;
+    this.basemapMenuOpen = false;
+    this.globe.setBasemap(kind);
+  }
+  private basemapLabel(kind: Basemap): string {
+    return kind === 'vector' ? t.basemapMap() : kind === 'opentopomap' ? t.basemapTopo() : t.basemapIgn();
   }
 
   private goHome(e: Event) {
@@ -185,6 +207,13 @@ export class AppShell extends LitElement {
     return html`
       <app-globe></app-globe>
 
+      ${this.basemapMenuOpen
+        ? html`<div
+            style="position:absolute;inset:0;z-index:29"
+            @click=${() => (this.basemapMenuOpen = false)}
+          ></div>`
+        : ''}
+
       <div class="topbar">
         <nav-menu></nav-menu>
         <a class="brand" href="/" @click=${this.goHome}>
@@ -192,10 +221,34 @@ export class AppShell extends LitElement {
           <small>${t.tagline()}</small>
         </a>
         <span class="spacer"></span>
-        <button class="pill" @click=${this.toggleBasemap} aria-label=${t.basemapToggle()} title=${t.basemapToggle()}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-          ${BASEMAP_LABELS[this.basemap]}
-        </button>
+        <div class="basemap">
+          <button
+            class="pill"
+            @click=${() => (this.basemapMenuOpen = !this.basemapMenuOpen)}
+            aria-haspopup="listbox"
+            aria-expanded=${this.basemapMenuOpen}
+            aria-label=${t.basemapToggle()}
+            title=${t.basemapToggle()}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            ${this.basemapLabel(this.basemap)}
+          </button>
+          ${this.basemapMenuOpen
+            ? html`<div class="basemap-menu" role="listbox">
+                ${BASEMAPS.map(
+                  (kind) => html`
+                    <button
+                      role="option"
+                      aria-current=${kind === this.basemap}
+                      @click=${() => this.selectBasemap(kind)}
+                    >
+                      ${this.basemapLabel(kind)}<span class="check">✓</span>
+                    </button>
+                  `,
+                )}
+              </div>`
+            : ''}
+        </div>
         <button class="pill" @click=${this.toggleLocale} aria-label=${t.langToggle()}>
           ${getLocale() === 'fr' ? 'FR' : 'EN'}
         </button>

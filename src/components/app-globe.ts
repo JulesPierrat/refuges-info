@@ -27,23 +27,45 @@ const OPENTOPO_STYLE: StyleSpecification = {
       tileSize: 256,
       maxzoom: 17,
       attribution:
-        'map data: © <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | display: © <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)',
+        '© <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors | © <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)',
     },
   },
   layers: [{ id: 'opentopomap', type: 'raster', source: 'opentopomap' }],
 };
 
-/** Amazon S3-hosted terrarium-encoded DEM (terrain). */
+/** IGN (Géoplateforme) orthophotos — aerial imagery over France, key-less WMTS. */
+const IGN_ORTHO_STYLE: StyleSpecification = {
+  version: 8,
+  sources: {
+    ign: {
+      type: 'raster',
+      tiles: [
+        'https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0' +
+          '&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&TILEMATRIXSET=PM' +
+          '&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/jpeg',
+      ],
+      tileSize: 256,
+      maxzoom: 19,
+      attribution: '© <a href="https://www.ign.fr">IGN</a> / Géoplateforme',
+    },
+  },
+  layers: [{ id: 'ign', type: 'raster', source: 'ign' }],
+};
+
+/** Amazon S3-hosted terrarium-encoded DEM (3D terrain). */
 const TERRAIN_TILES = 'https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png';
 
 const HOME_VIEW = { center: [6, 46] as [number, number], zoom: 2.4 };
 const EMPTY: PointCollection = { type: 'FeatureCollection', features: [] };
 
-export type Basemap = 'vector' | 'opentopomap';
-export const BASEMAP_LABELS: Record<Basemap, string> = {
-  vector: 'Plan',
-  opentopomap: 'OpenTopo',
+export type Basemap = 'vector' | 'opentopomap' | 'ign-ortho';
+const STYLES: Record<Basemap, string | StyleSpecification> = {
+  vector: VECTOR_STYLE,
+  opentopomap: OPENTOPO_STYLE,
+  'ign-ortho': IGN_ORTHO_STYLE,
 };
+/** Ordered list for the basemap selector (labels resolved by the shell). */
+export const BASEMAPS: Basemap[] = ['vector', 'opentopomap', 'ign-ortho'];
 
 function svgToImage(svg: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -72,6 +94,8 @@ export class AppGlobe extends LitElement {
   private points?: PointCollection;
   private svgByKey = new Map<string, string>();
   private addedIcons = new Set<string>();
+  /** True once a style is fully loaded and safe to mutate. Reset on setStyle(). */
+  private styleReady = false;
 
   render() {
     return html`
@@ -89,9 +113,10 @@ export class AppGlobe extends LitElement {
       style: VECTOR_STYLE,
       center: HOME_VIEW.center,
       zoom: HOME_VIEW.zoom,
+      maxPitch: 80,
       attributionControl: { compact: true },
-      // Kill pan inertia: on the globe with terrain the post-release glide
-      // reads as the camera drifting/tilting oddly.
+      // Kill pan inertia: the post-release glide over 3D terrain reads as the
+      // camera drifting/tilting oddly.
       dragPan: { maxSpeed: 0, deceleration: 30000 },
     });
     this.map = map;
@@ -106,7 +131,7 @@ export class AppGlobe extends LitElement {
     this.map?.remove();
   }
 
-  /** Globe projection, relief, sky and the points — re-applied per style. */
+  /** Globe projection, 3D terrain, sky and the points — re-applied per style. */
   private decorateStyle() {
     const map = this.map!;
     map.setProjection({ type: 'globe' });
@@ -120,21 +145,7 @@ export class AppGlobe extends LitElement {
         attribution: 'Relief: AWS Terrain Tiles',
       });
     }
-    // Relief is shown as hillshade rather than 3D terrain: setTerrain() makes the
-    // camera follow the ground elevation, which jumps oddly when releasing a drag.
-    // Hillshade keeps the Amazon DEM relief look without touching the camera.
-    if (this.basemap === 'vector' && !map.getLayer('hillshade')) {
-      const firstSymbol = map.getStyle().layers?.find((l) => l.type === 'symbol')?.id;
-      map.addLayer(
-        {
-          id: 'hillshade',
-          type: 'hillshade',
-          source: 'amazon-terrain',
-          paint: { 'hillshade-exaggeration': 0.45 },
-        },
-        firstSymbol,
-      );
-    }
+    map.setTerrain({ source: 'amazon-terrain', exaggeration: 1.2 });
     map.setSky({
       'sky-color': '#7AB0DE',
       'horizon-color': '#EAF2FB',
@@ -143,14 +154,15 @@ export class AppGlobe extends LitElement {
       'horizon-fog-blend': 0.6,
       'fog-ground-blend': 0.4,
     });
-    // setStyle() drops images and sources — re-register them.
+    // setStyle() drops images, sources and layers — re-register everything.
     this.addedIcons.clear();
+    this.styleReady = true;
     void this.refreshPoints();
   }
 
   private async refreshPoints() {
     const map = this.map;
-    if (!map || !map.isStyleLoaded()) return;
+    if (!map || !this.styleReady) return;
     await this.ensureIcons();
     const data = this.points ?? EMPTY;
     const src = map.getSource('points') as GeoJSONSource | undefined;
@@ -205,7 +217,8 @@ export class AppGlobe extends LitElement {
   setBasemap(kind: Basemap) {
     if (kind === this.basemap || !this.map) return;
     this.basemap = kind;
-    this.map.setStyle(kind === 'vector' ? VECTOR_STYLE : OPENTOPO_STYLE);
+    this.styleReady = false; // points/icons are re-added on the next style.load
+    this.map.setStyle(STYLES[kind]);
   }
   getBasemap(): Basemap {
     return this.basemap;
@@ -239,7 +252,7 @@ export class AppGlobe extends LitElement {
 
   /** Move the camera to a point (no marker). */
   flyTo(lng: number, lat: number) {
-    this.map?.flyTo({ center: [lng, lat], zoom: 13, pitch: 40, duration: 2000 });
+    this.map?.flyTo({ center: [lng, lat], zoom: 13, pitch: 50, duration: 2000 });
   }
 
   /** Fly to a point and drop a marker — optionally the point's composed icon. */
@@ -258,7 +271,7 @@ export class AppGlobe extends LitElement {
     this.marker = new maplibregl.Marker({ element: el, anchor: 'center' })
       .setLngLat([lng, lat])
       .addTo(this.map);
-    this.map.flyTo({ center: [lng, lat], zoom: 13, pitch: 40, duration: 2200 });
+    this.map.flyTo({ center: [lng, lat], zoom: 13, pitch: 50, duration: 2200 });
   }
 }
 
