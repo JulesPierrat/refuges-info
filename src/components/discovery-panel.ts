@@ -2,7 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { updateWhenLocaleChanges } from '@lit/localize';
 import { getMassifs, type Massif } from '../api/massifs';
-import { searchPoints, colorVarForType, type SearchResult } from '../api/search';
+import { searchPoints, type SearchResult } from '../api/search';
 import { t } from '../labels';
 
 /**
@@ -62,10 +62,11 @@ export class DiscoveryPanel extends LitElement {
       font: inherit; text-align: left; cursor: pointer;
     }
     li button:hover { background: var(--brand-soft); }
-    .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--brand); }
     .label { overflow: hidden; }
     .label .name { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .label .meta { font-size: 0.78rem; color: var(--text-subtle); }
+    .chev { margin-left: auto; color: var(--text-subtle); font-size: 1.1rem; line-height: 1; }
     li button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
   `;
 
@@ -156,7 +157,7 @@ export class DiscoveryPanel extends LitElement {
                           (r) => html`
                             <li>
                               <button @click=${() => this.selectPoint(r)}>
-                                <span class="dot" style="background:${colorVarForType(r.typeSlug)}"></span>
+                                <span class="dot"></span>
                                 <span class="label">
                                   <span class="name">${r.nom}</span>
                                   <span class="meta">${r.typeLabel}</span>
@@ -190,8 +191,9 @@ export class DiscoveryPanel extends LitElement {
                   (m) => html`
                     <li>
                       <button @click=${() => this.selectMassif(m)}>
-                        <span class="dot" style="background:${m.couleur}"></span>
+                        <span class="dot"></span>
                         <span class="label"><span class="name">${m.nom}</span></span>
+                        <span class="chev">›</span>
                       </button>
                     </li>
                   `,

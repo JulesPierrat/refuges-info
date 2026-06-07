@@ -118,6 +118,26 @@
   <source>Links</source>
   <target>Liens</target>
 </trans-unit>
+<trans-unit id="massif_points">
+  <source>Points</source>
+  <target>points</target>
+</trans-unit>
+<trans-unit id="massif_loading">
+  <source>Loading points…</source>
+  <target>Chargement des points…</target>
+</trans-unit>
+<trans-unit id="massif_not_found">
+  <source>Mountain range not found</source>
+  <target>Massif introuvable</target>
+</trans-unit>
+<trans-unit id="back">
+  <source>Back</source>
+  <target>Retour</target>
+</trans-unit>
+<trans-unit id="basemap_toggle">
+  <source>Change basemap</source>
+  <target>Changer de fond de carte</target>
+</trans-unit>
 </body>
 </file>
 </xliff>

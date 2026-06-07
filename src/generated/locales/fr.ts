@@ -9,7 +9,12 @@
     /* eslint-disable @typescript-eslint/no-explicit-any */
 
     export const templates = {
-      'lang_toggle': `Changer de langue`,
+      'back': `Retour`,
+'basemap_toggle': `Changer de fond de carte`,
+'lang_toggle': `Changer de langue`,
+'massif_loading': `Chargement des points…`,
+'massif_not_found': `Massif introuvable`,
+'massif_points': `points`,
 'massifs_filter': `Filtrer les massifs…`,
 'massifs_loading': `Chargement des massifs…`,
 'massifs_title': `Massifs`,

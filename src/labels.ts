@@ -19,6 +19,12 @@ export const t = {
   massifsLoading: () => msg('Loading mountain ranges…', { id: 'massifs_loading' }),
   massifsFilter: () => msg('Filter ranges…', { id: 'massifs_filter' }),
 
+  massifPoints: () => msg('Points', { id: 'massif_points' }),
+  massifLoading: () => msg('Loading points…', { id: 'massif_loading' }),
+  massifNotFound: () => msg('Mountain range not found', { id: 'massif_not_found' }),
+  back: () => msg('Back', { id: 'back' }),
+  basemapToggle: () => msg('Change basemap', { id: 'basemap_toggle' }),
+
   menuTitle: () => msg('Menu', { id: 'menu_title' }),
   menuOpen: () => msg('Open menu', { id: 'menu_open' }),
   menuClose: () => msg('Close menu', { id: 'menu_close' }),

@@ -14,7 +14,8 @@ pour l'analyse complète du site actuel et de son API.
 - [Lit](https://lit.dev/) + TypeScript — composants web (Web Components)
 - [@lit/localize](https://lit.dev/docs/localization/overview/) — i18n (défaut **EN**, **EN + FR** en v1)
 - [MapLibre GL JS](https://maplibre.org/) — globe 3D + carte vectorielle WebGL
-- Fond vectoriel topo : [OpenFreeMap](https://openfreemap.org/) (sans clé)
+- Fonds de carte : [OpenFreeMap](https://openfreemap.org/) (vectoriel, sans clé) et
+  [OpenTopoMap](https://opentopomap.org/) (raster topo) — bascule dans la barre
 - Relief 3D : tuiles DEM *terrarium* hébergées sur **Amazon S3** (AWS Terrain Tiles)
 - API refuges.info — source de données (GeoJSON, CC By-Sa 2.0)
 
@@ -69,6 +70,8 @@ src/
 ├── index.css                    # tokens de design (clair/sombre) + reset
 ├── i18n.ts                      # configuration @lit/localize (runtime)
 ├── labels.ts                    # toutes les chaînes traduisibles (msg())
+├── router.ts                    # routeur minimal (/ et /massif/:slug)
+├── slug.ts                      # slug d'un massif ↔ nom
 ├── generated/                   # locale-codes + templates FR (générés)
 ├── data/menu.ts                 # liens du menu burger (URLs réelles du site)
 ├── api/
@@ -78,25 +81,31 @@ src/
 │   ├── search.ts                # recherche serveur via /point_recherche (parse HTML)
 │   └── types.ts                 # types GeoJSON + ids de catégories
 └── components/
-    ├── home-page.ts             # page d'accueil : globe + barre + panneau
-    ├── app-globe.ts             # globe MapLibre + relief Amazon + fond topo
+    ├── app-shell.ts             # coquille persistante : globe + barre + panneau
+    ├── app-globe.ts             # globe MapLibre (instance unique, jamais remontée)
     ├── nav-menu.ts              # bouton burger + tiroir de navigation
-    └── discovery-panel.ts       # recherche serveur + liste des massifs
+    ├── discovery-panel.ts       # recherche serveur + liste des massifs
+    └── massif-panel.ts          # page /massif/:slug — points du massif
 ```
+
+## Navigation & carte persistante
+
+L'application est une **coquille unique** (`<app-shell>`) : le globe est créé **une
+seule fois** et n'est jamais rechargé ; seul le panneau latéral change selon la route.
+
+- `/` — **Accueil** : `<discovery-panel>` (recherche serveur via `/point_recherche`
+  sur toute la base + liste des 494 massifs).
+- `/massif/:slug` — **Massif** : `<massif-panel>` liste les points du massif
+  (`/api/massif`). La même carte cadre le massif et affiche ses points ; cliquer un
+  point y fait voler le globe.
 
 ## Page d'accueil
 
-- **Globe 3D** plein écran (projection *globe* MapLibre) avec relief (DEM terrarium
-  AWS sur Amazon S3) au-dessus d'un fond vectoriel topo OpenFreeMap.
-- **Menu burger** (`<nav-menu>`) reprenant les entrées du site historique
-  (Accueil, Qui sommes-nous, Don, Consignes en cabane, Règles de prudence, Recherche,
-  Export, Appli GPS, Flux RSS, Support, Doc API, Cookies, Licence, Mentions légales,
-  Liens).
-- **Panneau de découverte** flottant (`<discovery-panel>`) : barre de recherche
-  **serveur** (interroge toute la base via `/point_recherche`) et liste des **massifs**.
-  Sélectionner un point y fait voler le globe avec un marqueur ; sélectionner un massif
-  cadre la vue sur son emprise.
-- **Bascules** langue (EN/FR) et thème (clair/sombre) dans la barre supérieure.
+- **Globe 3D** plein écran (projection *globe*) avec relief (DEM terrarium AWS sur
+  Amazon S3) au-dessus d'un fond **OpenFreeMap** (vectoriel) ou **OpenTopoMap** (raster).
+- **Menu burger** (`<nav-menu>`) reprenant les entrées du site historique.
+- **Bascules** dans la barre supérieure : fond de carte, langue (EN/FR), thème
+  (clair/sombre). Les marqueurs et puces sont **monochromes** (couleur de marque).
 
 ## Licence des données
 
