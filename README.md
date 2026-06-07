@@ -59,13 +59,22 @@ lancer `npm run localize:extract`, traduire dans [xliff/fr.xlf](./xliff/fr.xlf),
 
 ### Configuration
 
-En production, l'API n'est pas proxifiée. Définissez l'origine de l'API via une
-variable d'environnement Vite :
+Deux façons d'atteindre l'API en production :
 
-```bash
-# .env.production
-VITE_API_BASE=https://www.refuges.info
-```
+- **Via un proxy** (recommandé) : laissez `VITE_API_BASE` vide et faites proxifier
+  `/api` et `/point_recherche` vers `https://www.refuges.info`. Sur **Vercel**, c'est
+  [vercel.json](./vercel.json) qui s'en charge (et qui ajoute le *fallback SPA* requis
+  pour les routes `/massif/*` et les liens profonds `#id`).
+- **En direct** : définissez l'origine de l'API (nécessite que l'API autorise le CORS) :
+
+  ```bash
+  # .env.production
+  VITE_API_BASE=https://www.refuges.info
+  ```
+
+> **Build** : le projet utilise **Vite 7** (Rollup). Vite 8 / Rolldown casse le bundle
+> du *web worker* de MapLibre à la minification (sources GeoJSON cassées en prod —
+> « X is not defined »).
 
 ## Structure
 

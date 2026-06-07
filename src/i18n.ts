@@ -8,7 +8,13 @@ import { sourceLocale, targetLocales } from './generated/locale-codes.js';
 export const { getLocale, setLocale } = configureLocalization({
   sourceLocale,
   targetLocales,
-  loadLocale: (locale) => import(`./generated/locales/${locale}.js`),
+  // Static map (not a variable dynamic import) so the production bundler can
+  // resolve and emit the locale chunks. A templated import fails at build time
+  // ("Unknown variable dynamic import").
+  loadLocale: (locale) =>
+    locale === 'fr'
+      ? import('./generated/locales/fr.js')
+      : Promise.reject(new Error(`Unsupported locale: ${locale}`)),
 });
 
 export type AppLocale = 'en' | 'fr';

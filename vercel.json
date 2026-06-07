@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://www.refuges.info/api/:path*" },
+    { "source": "/point_recherche", "destination": "https://www.refuges.info/point_recherche" },
+    { "source": "/:path*", "destination": "/index.html" }
+  ]
+}
