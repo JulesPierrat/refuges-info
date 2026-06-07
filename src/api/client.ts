@@ -38,6 +38,45 @@ async function getJson<T>(path: string, params: URLSearchParams, signal?: AbortS
   return res.json() as Promise<T>;
 }
 
+export interface PointComment {
+  id: number;
+  texte?: string;
+  auteur?: string;
+  /** Path under the site root, e.g. "/photos_points/51684-originale.jpeg?...". */
+  photo?: string;
+  date_photo?: string;
+}
+
+/** Full detail for the point panel: `complet` fields merged with `fiche` comments. */
+export interface PointFull {
+  id: number;
+  nom: string;
+  lien?: string;
+  type: { id?: number | string; valeur?: string };
+  coord: { alt?: number; long?: number; lat?: number };
+  etat?: { valeur?: string };
+  places?: { valeur?: number | null };
+  acces?: { valeur?: string };
+  remarque?: { valeur?: string };
+  description?: { valeur?: string };
+  info_comp?: Record<string, { nom?: string; valeur?: string } | undefined>;
+  commentaires?: PointComment[];
+}
+
+/** Fetch a point's complete info + its comment/photo thread (two parallel calls). */
+export async function getPointFull(id: number, signal?: AbortSignal): Promise<PointFull> {
+  const q = (detail: DetailLevel) =>
+    new URLSearchParams({ format: 'geojson', detail, id: String(id), format_texte: 'texte' });
+  type FC = { features: { properties: Record<string, unknown> }[] };
+  const [complet, fiche] = await Promise.all([
+    getJson<FC>('point', q('complet'), signal),
+    getJson<FC>('point', q('fiche'), signal),
+  ]);
+  const cp = complet.features?.[0]?.properties ?? {};
+  const fp = fiche.features?.[0]?.properties ?? {};
+  return { ...(cp as unknown as PointFull), commentaires: (fp.commentaires as PointComment[]) ?? [] };
+}
+
 /** Points within a bounding box (the map's current view). */
 export function getPointsInBbox(
   bbox: Bbox,

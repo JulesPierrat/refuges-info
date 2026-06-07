@@ -138,6 +138,90 @@
   <source>Change basemap</source>
   <target>Changer de fond de carte</target>
 </trans-unit>
+<trans-unit id="detail_more">
+  <source>See full page</source>
+  <target>Voir plus</target>
+</trans-unit>
+<trans-unit id="detail_close">
+  <source>Close</source>
+  <target>Fermer</target>
+</trans-unit>
+<trans-unit id="detail_photos">
+  <source>Photos</source>
+  <target>Photos</target>
+</trans-unit>
+<trans-unit id="detail_loading">
+  <source>Loading…</source>
+  <target>Chargement…</target>
+</trans-unit>
+<trans-unit id="detail_access">
+  <source>Access</source>
+  <target>Accès</target>
+</trans-unit>
+<trans-unit id="detail_beds">
+  <source>Sleeping spots</source>
+  <target>places</target>
+</trans-unit>
+<trans-unit id="info_blankets">
+  <source>Blankets</source>
+  <target>Couvertures</target>
+</trans-unit>
+<trans-unit id="info_latrines">
+  <source>Latrines</source>
+  <target>Latrines</target>
+</trans-unit>
+<trans-unit id="legend_title">
+  <source>Legend</source>
+  <target>Légende</target>
+</trans-unit>
+<trans-unit id="legend_types">
+  <source>Types</source>
+  <target>Types</target>
+</trans-unit>
+<trans-unit id="legend_symbols">
+  <source>Symbols</source>
+  <target>Indications</target>
+</trans-unit>
+<trans-unit id="legend_fireplace">
+  <source>Fireplace</source>
+  <target>Cheminée / poêle</target>
+</trans-unit>
+<trans-unit id="legend_beds">
+  <source>Number of beds</source>
+  <target>Nombre de couchages</target>
+</trans-unit>
+<trans-unit id="legend_missing_wall">
+  <source>Open shelter (3 walls)</source>
+  <target>Abri ouvert (3 murs)</target>
+</trans-unit>
+<trans-unit id="legend_water">
+  <source>Water nearby</source>
+  <target>Eau à proximité</target>
+</trans-unit>
+<trans-unit id="cat_refuge">
+  <source>Staffed refuge</source>
+  <target>Refuge gardé</target>
+</trans-unit>
+<trans-unit id="cat_cabane">
+  <source>Unstaffed cabin</source>
+  <target>Cabane non gardée</target>
+</trans-unit>
+<trans-unit id="cat_gite">
+  <source>Lodge</source>
+  <target>Gîte d'étape</target>
+</trans-unit>
+<trans-unit id="cat_eau">
+  <source>Water point</source>
+  <target>Point d'eau</target>
+</trans-unit>
+<trans-unit id="cat_sommet">
+  <source>Summit</source>
+  <target>Sommet</target>
+</trans-unit>
+<trans-unit id="cat_abri">
+  <source>Shelter / cave</source>
+  <target>Abri / grotte</target>
+</trans-unit>
 </body>
 </file>
 </xliff>

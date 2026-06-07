@@ -4,6 +4,7 @@ import { updateWhenLocaleChanges } from '@lit/localize';
 import { getPointsInMassif } from '../api/client';
 import { getMassifs, type Massif } from '../api/massifs';
 import type { PointFeature } from '../api/types';
+import { iconAttrsFromPoint, iconDataUri, type PointIconInput } from '../icons';
 import { findMassifBySlug } from '../slug';
 import { navigate } from '../router';
 import { t } from '../labels';
@@ -59,7 +60,7 @@ export class MassifPanel extends LitElement {
     }
     li button:hover { background: var(--brand-soft); }
     li button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-    .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--brand); }
+    .ic { width: 30px; height: 30px; flex: none; }
     .label { overflow: hidden; }
     .label .name { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .label .meta { font-size: 0.78rem; color: var(--text-subtle); }
@@ -104,7 +105,7 @@ export class MassifPanel extends LitElement {
       }
       const fc = await getPointsInMassif(
         [massif.id],
-        { detail: 'simple', typesPoint: 'all', nbPoints: 'all' },
+        { detail: 'complet', typesPoint: 'all', nbPoints: 'all' },
         this.abort.signal,
       );
       this.points = fc.features;
@@ -126,7 +127,11 @@ export class MassifPanel extends LitElement {
   private flyTo(f: PointFeature) {
     const [lng, lat] = f.geometry.coordinates;
     this.dispatchEvent(
-      new CustomEvent('point-fly', { detail: { lng, lat }, bubbles: true, composed: true }),
+      new CustomEvent('open-point', {
+        detail: { id: f.properties.id, lng, lat },
+        bubbles: true,
+        composed: true,
+      }),
     );
   }
 
@@ -157,7 +162,11 @@ export class MassifPanel extends LitElement {
                     (f) => html`
                       <li>
                         <button @click=${() => this.flyTo(f)}>
-                          <span class="dot"></span>
+                          <img
+                            class="ic"
+                            src=${iconDataUri(iconAttrsFromPoint(f.properties as unknown as PointIconInput))}
+                            alt=""
+                          />
                           <span class="label">
                             <span class="name">${f.properties.nom}</span>
                             <span class="meta">${f.properties.type?.valeur ?? ''}</span>

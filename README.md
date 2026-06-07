@@ -16,7 +16,8 @@ pour l'analyse complète du site actuel et de son API.
 - [MapLibre GL JS](https://maplibre.org/) — globe 3D + carte vectorielle WebGL
 - Fonds de carte : [OpenFreeMap](https://openfreemap.org/) (vectoriel, sans clé) et
   [OpenTopoMap](https://opentopomap.org/) (raster topo) — bascule dans la barre
-- Relief 3D : tuiles DEM *terrarium* hébergées sur **Amazon S3** (AWS Terrain Tiles)
+- Relief : ombrage (*hillshade*) calculé depuis les tuiles DEM *terrarium*
+  hébergées sur **Amazon S3** (AWS Terrain Tiles)
 - API refuges.info — source de données (GeoJSON, CC By-Sa 2.0)
 
 Identité visuelle : voir [CHARTE_GRAPHIQUE.md](./CHARTE_GRAPHIQUE.md) (thèmes clair/sombre,
@@ -72,6 +73,7 @@ src/
 ├── labels.ts                    # toutes les chaînes traduisibles (msg())
 ├── router.ts                    # routeur minimal (/ et /massif/:slug)
 ├── slug.ts                      # slug d'un massif ↔ nom
+├── icons.ts                     # composition des icônes SVG par type + indications
 ├── generated/                   # locale-codes + templates FR (générés)
 ├── data/menu.ts                 # liens du menu burger (URLs réelles du site)
 ├── api/
@@ -85,8 +87,25 @@ src/
     ├── app-globe.ts             # globe MapLibre (instance unique, jamais remontée)
     ├── nav-menu.ts              # bouton burger + tiroir de navigation
     ├── discovery-panel.ts       # recherche serveur + liste des massifs
-    └── massif-panel.ts          # page /massif/:slug — points du massif
+    ├── massif-panel.ts          # page /massif/:slug — points du massif
+    ├── point-detail-panel.ts    # fiche d'un point (infos + photos + « Voir plus »)
+    └── map-legend.ts            # légende repliable des icônes
 ```
+
+## Icônes & fiche d'un point
+
+- **Icônes composées** ([icons.ts](./src/icons.ts)) : une forme colorée par type
+  (refuge, cabane, gîte, point d'eau, sommet, abri) sur laquelle se superposent des
+  indications — cheminée, nombre de couchages, hachures si l'abri n'a que 3 murs,
+  goutte d'eau à proximité — dans l'esprit des pictogrammes du site original.
+  Affichées sur la carte (couche `symbol`) et dans les listes.
+- **Légende** repliable (`<map-legend>`, en bas à gauche) expliquant types et symboles.
+- **Clic sur un point** → panneau à droite (`<point-detail-panel>`) : infos
+  principales, **photos** (miniatures issues des contributions) et bouton
+  **« Voir plus »** vers la fiche complète sur refuges.info (détails, commentaires).
+- Le relief est rendu en **ombrage** (hillshade) et non en terrain 3D : `setTerrain`
+  faisait suivre l'élévation à la caméra, ce qui provoquait un saut désagréable au
+  relâchement du déplacement.
 
 ## Navigation & carte persistante
 

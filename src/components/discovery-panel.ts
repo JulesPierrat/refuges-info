@@ -3,6 +3,7 @@ import { customElement, state } from 'lit/decorators.js';
 import { updateWhenLocaleChanges } from '@lit/localize';
 import { getMassifs, type Massif } from '../api/massifs';
 import { searchPoints, type SearchResult } from '../api/search';
+import { categoryFromSlug, iconDataUri } from '../icons';
 import { t } from '../labels';
 
 /**
@@ -63,6 +64,7 @@ export class DiscoveryPanel extends LitElement {
     }
     li button:hover { background: var(--brand-soft); }
     .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--brand); }
+    .ic { width: 28px; height: 28px; flex: none; }
     .label { overflow: hidden; }
     .label .name { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .label .meta { font-size: 0.78rem; color: var(--text-subtle); }
@@ -157,7 +159,11 @@ export class DiscoveryPanel extends LitElement {
                           (r) => html`
                             <li>
                               <button @click=${() => this.selectPoint(r)}>
-                                <span class="dot"></span>
+                                <img
+                                  class="ic"
+                                  src=${iconDataUri({ category: categoryFromSlug(r.typeSlug) })}
+                                  alt=""
+                                />
                                 <span class="label">
                                   <span class="name">${r.nom}</span>
                                   <span class="meta">${r.typeLabel}</span>

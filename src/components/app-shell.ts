@@ -5,11 +5,14 @@ import './app-globe';
 import './nav-menu';
 import './discovery-panel';
 import './massif-panel';
+import './point-detail-panel';
+import './map-legend';
 import { type AppGlobe, type Basemap, BASEMAP_LABELS } from './app-globe';
 import { getPoint } from '../api/client';
 import type { SearchResult } from '../api/search';
 import type { Massif } from '../api/massifs';
 import { applyLocale, getLocale, type AppLocale } from '../i18n';
+import { categoryFromSlug, composeIconSvg } from '../icons';
 import { massifSlug } from '../slug';
 import { currentRoute, navigate, onRouteChange, type Route } from '../router';
 import { t } from '../labels';
@@ -69,11 +72,20 @@ export class AppShell extends LitElement {
       top: calc(var(--space-4) + 60px); left: var(--space-4); bottom: var(--space-4);
       width: min(92vw, 360px); z-index: 20;
     }
-    discovery-panel, massif-panel { height: 100%; }
+    discovery-panel, massif-panel, point-detail-panel { height: 100%; }
 
-    @media (max-width: 640px) {
+    .detail {
+      position: absolute;
+      top: calc(var(--space-4) + 60px); right: var(--space-4); bottom: var(--space-4);
+      width: min(94vw, 380px); z-index: 25;
+    }
+    .legend-wrap { position: absolute; left: var(--space-4); bottom: var(--space-4); z-index: 20; }
+
+    @media (max-width: 720px) {
       .brand small { display: none; }
-      .panel { right: var(--space-4); width: auto; top: auto; height: 48vh; }
+      .panel { right: var(--space-4); width: auto; top: auto; height: 42vh; }
+      .detail { left: var(--space-4); width: auto; top: auto; height: 60vh; z-index: 26; }
+      .legend-wrap { display: none; }
     }
   `;
 
@@ -81,6 +93,7 @@ export class AppShell extends LitElement {
   @state() private theme: Theme | null = null;
   @state() private route: Route = currentRoute();
   @state() private basemap: Basemap = 'vector';
+  @state() private selectedPointId?: number;
 
   private offRoute?: () => void;
 
@@ -95,13 +108,27 @@ export class AppShell extends LitElement {
     if (saved === 'light' || saved === 'dark') this.applyTheme(saved);
     this.offRoute = onRouteChange((r) => {
       this.route = r;
+      this.selectedPointId = undefined;
       if (r.name === 'home') this.globe?.showPoints(undefined);
     });
+    this.addEventListener('open-point', this.onOpenPoint as EventListener);
+    this.addEventListener('close-detail', this.onCloseDetail);
   }
   disconnectedCallback() {
     super.disconnectedCallback();
     this.offRoute?.();
+    this.removeEventListener('open-point', this.onOpenPoint as EventListener);
+    this.removeEventListener('close-detail', this.onCloseDetail);
   }
+
+  /** A point clicked on the map or in the massif list. */
+  private onOpenPoint = (e: CustomEvent<{ id: number; lng?: number; lat?: number }>) => {
+    this.selectedPointId = e.detail.id;
+    if (e.detail.lng != null && e.detail.lat != null) this.globe.flyTo(e.detail.lng, e.detail.lat);
+  };
+  private onCloseDetail = () => {
+    this.selectedPointId = undefined;
+  };
 
   private applyTheme(theme: Theme) {
     this.theme = theme;
@@ -133,7 +160,11 @@ export class AppShell extends LitElement {
     try {
       const fc = await getPoint(e.detail.id, 'simple');
       const geom = fc.features[0]?.geometry;
-      if (geom?.type === 'Point') this.globe.flyToPoint(geom.coordinates[0], geom.coordinates[1]);
+      if (geom?.type === 'Point') {
+        const icon = composeIconSvg({ category: categoryFromSlug(e.detail.typeSlug) });
+        this.globe.flyToPoint(geom.coordinates[0], geom.coordinates[1], icon);
+      }
+      this.selectedPointId = e.detail.id;
     } catch (err) {
       console.error('resolve point', err);
     }
@@ -144,9 +175,6 @@ export class AppShell extends LitElement {
   private onShowMassif(e: CustomEvent<{ bbox: Parameters<AppGlobe['flyToBbox']>[0]; collection: Parameters<AppGlobe['showPoints']>[0] }>) {
     this.globe.showPoints(e.detail.collection);
     this.globe.flyToBbox(e.detail.bbox);
-  }
-  private onPointFly(e: CustomEvent<{ lng: number; lat: number }>) {
-    this.globe.flyToPoint(e.detail.lng, e.detail.lat);
   }
 
   render() {
@@ -183,12 +211,19 @@ export class AppShell extends LitElement {
         @point-selected=${this.onPointSelected}
         @massif-selected=${this.onMassifSelected}
         @show-massif=${this.onShowMassif}
-        @point-fly=${this.onPointFly}
       >
         ${this.route.name === 'massif'
           ? html`<massif-panel .slug=${this.route.slug}></massif-panel>`
           : html`<discovery-panel></discovery-panel>`}
       </div>
+
+      ${this.selectedPointId != null
+        ? html`<div class="detail">
+            <point-detail-panel .pointId=${this.selectedPointId}></point-detail-panel>
+          </div>`
+        : ''}
+
+      <div class="legend-wrap"><map-legend></map-legend></div>
     `;
   }
 }
