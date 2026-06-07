@@ -9,8 +9,7 @@
  * absolute API origin (e.g. https://www.refuges.info).
  */
 import type { Bbox, DetailLevel, PointCollection, PointType } from './types';
-
-const API_BASE = import.meta.env.VITE_API_BASE ?? '';
+import { API_BASE } from './config';
 
 interface PointsQuery {
   bbox?: Bbox | 'world';

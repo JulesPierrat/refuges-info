@@ -165,22 +165,26 @@ Voir <https://www.refuges.info/wiki/licence>.
 
 ## 6. Pistes pour la nouvelle interface
 
-Implémenté dans ce dépôt (socle) :
+Implémenté dans ce dépôt :
 
-- [x] Carte plein écran (MapLibre GL) centrée sur les Alpes
-- [x] Chargement des points de l'emprise visible via `/api/bbox` (debounce sur `moveend`)
-- [x] Infobulle au clic avec lien vers la fiche
+- [x] Page d'accueil : globe 3D plein écran (projection *globe* MapLibre)
+- [x] Relief 3D (DEM terrarium AWS / Amazon S3) sur fond vectoriel topo OpenFreeMap
+- [x] Menu burger avec toutes les entrées du site historique (URLs réelles)
+- [x] Recherche **serveur** de points via `/point_recherche` (toute la base)
+- [x] Liste des 494 massifs (`/api/polygones?type_polygon=1`) + zoom sur emprise
+- [x] Thèmes clair/sombre (tokens de la charte) + bascule
+- [x] i18n EN (défaut) + FR via `@lit/localize`
 - [x] Client API typé + types GeoJSON
 
 À faire (suggestions, par ordre de valeur) :
 
 - [ ] Icônes par type de point (sprite à partir du champ `type.icone`)
-- [ ] Clustering / agrégation à bas niveau de zoom
+- [ ] Affichage des points de l'emprise visible + clustering à bas zoom
 - [ ] Panneau latéral de filtres par catégorie (`type_points`)
 - [ ] Fiche détaillée (niveau `complet`/`fiche`) en panneau ou route dédiée
-- [ ] Recherche (nom, massif) et géolocalisation
-- [ ] Fonds de carte alternatifs (IGN, OpenTopoMap, ortho) et sélecteur de couches
+- [ ] Tracé des polygones de massifs sur le globe (géométrie déjà chargée)
+- [ ] Fond de carte sombre dédié (le fond topo actuel est clair)
+- [ ] Fonds alternatifs (IGN, OpenTopoMap, ortho) et sélecteur de couches
 - [ ] Export GPX/KML du point ou de la sélection
-- [ ] Affichage des polygones de massifs (`/api/polygones`)
-- [ ] i18n (FR par défaut, EN/ES/IT comme le site historique)
+- [ ] Géolocalisation poussée, ES/IT comme le site historique
 - [ ] PWA / mode hors-ligne pour l'usage en montagne

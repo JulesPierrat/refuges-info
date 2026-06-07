@@ -6,11 +6,9 @@ export default defineConfig({
     // Proxy API calls to refuges.info in dev to avoid CORS.
     // The app calls `/api/...`; in production set VITE_API_BASE instead.
     proxy: {
-      '/api': {
-        target: 'https://www.refuges.info',
-        changeOrigin: true,
-        secure: true,
-      },
+      // Read API (GeoJSON) and the server-side search route (/point_recherche).
+      '/api': { target: 'https://www.refuges.info', changeOrigin: true, secure: true },
+      '/point_recherche': { target: 'https://www.refuges.info', changeOrigin: true, secure: true },
     },
   },
 });

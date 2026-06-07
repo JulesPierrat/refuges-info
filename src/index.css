@@ -1,16 +1,127 @@
+/* ============================================================
+   refuges.info — design tokens (cf. CHARTE_GRAPHIQUE.md)
+   Light + dark themes. Dark applies via prefers-color-scheme
+   or by forcing data-theme="dark" on <html>.
+   ============================================================ */
+
 :root {
+  /* Raw scales */
+  --pine-50:#ECF6F0; --pine-100:#D2EBDD; --pine-200:#A6D7BC; --pine-300:#73BE97;
+  --pine-400:#43A276; --pine-500:#22895B; --pine-600:#1E6F4C; --pine-700:#185A3E;
+  --pine-800:#134630; --pine-900:#0C3020;
+  --ember-300:#F19A66; --ember-400:#EC7C3D; --ember-500:#E8662A; --ember-600:#C9501C;
+  --glacier-200:#98D0E8; --glacier-300:#5FB4D8; --glacier-500:#2E97C5; --glacier-600:#1F7AA3;
+  --stone-0:#FFFFFF; --stone-50:#F7F8F5; --stone-100:#EDEFEA; --stone-200:#DCE0D7;
+  --stone-300:#C3C9BC; --stone-400:#9BA294; --stone-500:#6E766A; --stone-600:#525A4E;
+  --stone-700:#3C433A; --stone-800:#272D25; --stone-900:#161A14; --stone-950:#0E120C;
+
+  /* Per-point-type marker colors */
+  --pt-refuge-garde:#1E6F4C; --pt-cabane:#E8662A; --pt-gite:#7A4FA3;
+  --pt-eau:#2E97C5; --pt-sommet:#3C433A; --pt-abri:#8A6A4F; --pt-divers:#6E776A;
+
+  /* Shape & motion */
+  --radius-xs:6px; --radius-sm:8px; --radius-md:12px; --radius-lg:16px;
+  --radius-xl:24px; --radius-full:999px;
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px;
+  --space-6:24px; --space-8:32px; --space-10:40px; --space-12:48px;
+  --font-display:"Bricolage Grotesque","Inter",system-ui,sans-serif;
+  --font-sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --ease-out:cubic-bezier(.22,.61,.36,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --dur-fast:120ms; --dur-base:200ms; --dur-slow:320ms;
+}
+
+/* -------- Light theme -------- */
+:root, [data-theme="light"] {
   color-scheme: light;
+  --bg: var(--stone-50);
+  --bg-elevated: var(--stone-0);
+  --bg-sunken: var(--stone-100);
+  --surface-glass: rgba(255,255,255,.82);
+  --surface-glass-brd: rgba(22,26,20,.08);
+  --text: var(--stone-900);
+  --text-muted: var(--stone-600);
+  --text-subtle: var(--stone-500);
+  --text-on-brand: #FFFFFF;
+  --border: var(--stone-200);
+  --border-strong: var(--stone-300);
+  --brand: var(--pine-600);
+  --brand-hover: var(--pine-700);
+  --brand-soft: var(--pine-50);
+  --accent: var(--ember-500);
+  --accent-hover: var(--ember-600);
+  --link: var(--glacier-600);
+  --shadow-sm: 0 1px 2px rgba(22,26,20,.08), 0 1px 3px rgba(22,26,20,.06);
+  --shadow-md: 0 2px 6px rgba(22,26,20,.10), 0 6px 16px rgba(22,26,20,.08);
+  --shadow-lg: 0 8px 24px rgba(22,26,20,.14), 0 16px 48px rgba(22,26,20,.12);
+  --focus-ring: 0 0 0 3px rgba(46,151,197,.45);
 }
 
-html,
-body {
-  margin: 0;
-  height: 100%;
+/* -------- Dark theme -------- */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: var(--stone-950);
+  --bg-elevated: #171C15;
+  --bg-sunken: #0B0E09;
+  --surface-glass: rgba(20,25,18,.72);
+  --surface-glass-brd: rgba(255,255,255,.08);
+  --text: #EAEDE6;
+  --text-muted: #A9B0A2;
+  --text-subtle: #828A7C;
+  --text-on-brand: #FFFFFF;
+  --border: rgba(255,255,255,.10);
+  --border-strong: rgba(255,255,255,.18);
+  --brand: var(--pine-400);
+  --brand-hover: var(--pine-300);
+  --brand-soft: rgba(67,162,118,.14);
+  --accent: var(--ember-400);
+  --accent-hover: var(--ember-300);
+  --link: var(--glacier-300);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.40);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.45);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,.55);
+  --focus-ring: 0 0 0 3px rgba(95,180,216,.50);
 }
 
+/* Follow OS preference when the user hasn't explicitly chosen a theme */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: var(--stone-950);
+    --bg-elevated: #171C15;
+    --bg-sunken: #0B0E09;
+    --surface-glass: rgba(20,25,18,.72);
+    --surface-glass-brd: rgba(255,255,255,.08);
+    --text: #EAEDE6;
+    --text-muted: #A9B0A2;
+    --text-subtle: #828A7C;
+    --border: rgba(255,255,255,.10);
+    --border-strong: rgba(255,255,255,.18);
+    --brand: var(--pine-400);
+    --brand-hover: var(--pine-300);
+    --brand-soft: rgba(67,162,118,.14);
+    --accent: var(--ember-400);
+    --accent-hover: var(--ember-300);
+    --link: var(--glacier-300);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.40);
+    --shadow-md: 0 4px 12px rgba(0,0,0,.45);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,.55);
+    --focus-ring: 0 0 0 3px rgba(95,180,216,.50);
+  }
+}
+
+html, body { margin: 0; height: 100%; }
 body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }

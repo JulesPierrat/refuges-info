@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+<file target-language="fr" source-language="en" original="lit-localize-inputs" datatype="plaintext">
+<body>
+<trans-unit id="tagline">
+  <source>Mountain refuges, cabins and water points</source>
+  <target>Refuges, cabanes et points d'eau de montagne</target>
+</trans-unit>
+<trans-unit id="search_placeholder">
+  <source>Search a refuge, cabin, water point…</source>
+  <target>Rechercher un refuge, une cabane, un point d'eau…</target>
+</trans-unit>
+<trans-unit id="search_searching">
+  <source>Searching…</source>
+  <target>Recherche…</target>
+</trans-unit>
+<trans-unit id="search_no_results">
+  <source>No results</source>
+  <target>Aucun résultat</target>
+</trans-unit>
+<trans-unit id="search_min_chars">
+  <source>Type at least 2 characters</source>
+  <target>Saisissez au moins 2 caractères</target>
+</trans-unit>
+<trans-unit id="search_results">
+  <source>Results</source>
+  <target>Résultats</target>
+</trans-unit>
+<trans-unit id="massifs_title">
+  <source>Mountain ranges</source>
+  <target>Massifs</target>
+</trans-unit>
+<trans-unit id="massifs_loading">
+  <source>Loading mountain ranges…</source>
+  <target>Chargement des massifs…</target>
+</trans-unit>
+<trans-unit id="massifs_filter">
+  <source>Filter ranges…</source>
+  <target>Filtrer les massifs…</target>
+</trans-unit>
+<trans-unit id="menu_title">
+  <source>Menu</source>
+  <target>Menu</target>
+</trans-unit>
+<trans-unit id="menu_open">
+  <source>Open menu</source>
+  <target>Ouvrir le menu</target>
+</trans-unit>
+<trans-unit id="menu_close">
+  <source>Close menu</source>
+  <target>Fermer le menu</target>
+</trans-unit>
+<trans-unit id="theme_toggle">
+  <source>Switch light/dark theme</source>
+  <target>Basculer le thème clair/sombre</target>
+</trans-unit>
+<trans-unit id="lang_toggle">
+  <source>Switch language</source>
+  <target>Changer de langue</target>
+</trans-unit>
+<trans-unit id="nav_home">
+  <source>Home</source>
+  <target>Accueil</target>
+</trans-unit>
+<trans-unit id="nav_about">
+  <source>About us</source>
+  <target>Qui sommes-nous ?</target>
+</trans-unit>
+<trans-unit id="nav_donate">
+  <source>Donate</source>
+  <target>Don</target>
+</trans-unit>
+<trans-unit id="nav_cabin_rules">
+  <source>Cabin etiquette</source>
+  <target>Consignes en cabane</target>
+</trans-unit>
+<trans-unit id="nav_safety">
+  <source>Safety rules</source>
+  <target>Règles de prudence</target>
+</trans-unit>
+<trans-unit id="nav_search_points">
+  <source>Search points</source>
+  <target>Recherche de points</target>
+</trans-unit>
+<trans-unit id="nav_export_points">
+  <source>Export points</source>
+  <target>Export de points</target>
+</trans-unit>
+<trans-unit id="nav_gps_app">
+  <source>GPS app</source>
+  <target>Appli GPS</target>
+</trans-unit>
+<trans-unit id="nav_rss">
+  <source>RSS feed</source>
+  <target>Flux RSS</target>
+</trans-unit>
+<trans-unit id="nav_support">
+  <source>Support the site</source>
+  <target>Support site</target>
+</trans-unit>
+<trans-unit id="nav_api_doc">
+  <source>API docs</source>
+  <target>Doc API</target>
+</trans-unit>
+<trans-unit id="nav_cookies">
+  <source>Cookies</source>
+  <target>Cookies</target>
+</trans-unit>
+<trans-unit id="nav_license">
+  <source>License</source>
+  <target>Licence</target>
+</trans-unit>
+<trans-unit id="nav_legal">
+  <source>Legal notice</source>
+  <target>Mentions légales</target>
+</trans-unit>
+<trans-unit id="nav_links">
+  <source>Links</source>
+  <target>Liens</target>
+</trans-unit>
+</body>
+</file>
+</xliff>
