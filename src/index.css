@@ -122,25 +122,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Selected-point marker: a small dot with one pulsing ring (light DOM, used by
-   the MapLibre marker element). */
-.refuge-pulse { position: relative; width: 16px; height: 16px; }
-.refuge-pulse .dot {
-  position: absolute; inset: 0; margin: auto; width: 14px; height: 14px;
-  border-radius: 50%; background: #1e6f4c; border: 2px solid #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
-}
-.refuge-pulse .ring {
-  position: absolute; inset: -3px; border-radius: 50%;
-  border: 2px solid #1e6f4c; opacity: 0;
-  animation: refuge-pulse 1.8s ease-out infinite;
-}
-@keyframes refuge-pulse {
-  0% { transform: scale(0.6); opacity: 0.7; }
-  70% { transform: scale(2.4); opacity: 0; }
-  100% { opacity: 0; }
-}
-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }

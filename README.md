@@ -17,6 +17,8 @@ pour l'analyse complète du site actuel et de son API.
 - [Vite](https://vite.dev/) — build / dev server
 - [Lit](https://lit.dev/) + TypeScript — composants web (Web Components)
 - [@lit/localize](https://lit.dev/docs/localization/overview/) — i18n (défaut **EN**, **EN + FR** en v1)
+- [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) — **PWA installable** (manifest,
+  service worker, icône d'app) ; interface **responsive** (bureau + mobile en *bottom-sheet*)
 - [MapLibre GL JS](https://maplibre.org/) — globe 3D + carte vectorielle WebGL
 - Fonds de carte (liste déroulante) : [OpenFreeMap](https://openfreemap.org/)
   (vectoriel, sans clé), [OpenTopoMap](https://opentopomap.org/) (raster topo) et

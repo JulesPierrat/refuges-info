@@ -39,7 +39,9 @@ export class AppShell extends LitElement {
 
     .topbar {
       position: absolute;
-      top: var(--space-4); left: var(--space-4); right: var(--space-4);
+      top: calc(var(--space-4) + env(safe-area-inset-top, 0px));
+      left: max(var(--space-4), env(safe-area-inset-left, 0px));
+      right: max(var(--space-4), env(safe-area-inset-right, 0px));
       display: flex; align-items: center; gap: var(--space-3);
       z-index: 30; pointer-events: none;
     }
@@ -106,10 +108,22 @@ export class AppShell extends LitElement {
     }
     .legend-wrap { position: absolute; left: var(--space-4); bottom: var(--space-4); z-index: 20; }
 
+    /* ---------- Mobile: compact top bar + bottom-sheet panels ---------- */
     @media (max-width: 720px) {
+      .topbar { gap: var(--space-2); flex-wrap: wrap; justify-content: flex-end; }
+      .brand { margin-right: auto; }
       .brand small { display: none; }
-      .panel { right: var(--space-4); width: auto; top: auto; height: 42vh; }
-      .detail { left: var(--space-4); width: auto; top: auto; height: 60vh; z-index: 26; }
+      .brand strong { font-size: 0.98rem; }
+      .pill { height: 40px; min-width: 40px; padding: 0 var(--space-2); }
+      .bm-label { display: none; } /* basemap pill is icon-only on mobile */
+      .basemap-menu { right: 0; left: auto; }
+
+      .panel, .detail {
+        left: var(--space-2); right: var(--space-2); top: auto; width: auto;
+        bottom: calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
+        height: 46vh; max-height: 72vh;
+      }
+      .detail { height: 70vh; z-index: 26; } /* detail sheet sits above the list */
       .legend-wrap { display: none; }
     }
   `;
@@ -291,7 +305,7 @@ export class AppShell extends LitElement {
             title=${t.basemapToggle()}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            ${this.basemapLabel(this.basemap)}
+            <span class="bm-label">${this.basemapLabel(this.basemap)}</span>
           </button>
           ${this.basemapMenuOpen
             ? html`<div class="basemap-menu" role="listbox">
