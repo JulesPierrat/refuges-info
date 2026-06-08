@@ -108,6 +108,9 @@ export class AppShell extends LitElement {
     }
     .legend-wrap { position: absolute; left: var(--space-4); bottom: var(--space-4); z-index: 20; }
 
+    /* Bottom-sheet grab handle (mobile only). */
+    .grab { display: none; }
+
     /* ---------- Mobile: compact top bar + bottom-sheet panels ---------- */
     @media (max-width: 720px) {
       .topbar { gap: var(--space-2); flex-wrap: wrap; justify-content: flex-end; }
@@ -122,9 +125,28 @@ export class AppShell extends LitElement {
         left: var(--space-2); right: var(--space-2); top: auto; width: auto;
         bottom: calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
         height: 46vh; max-height: 72vh;
+        display: flex; flex-direction: column; overflow: hidden;
+        transition: height var(--dur-base) var(--ease-out);
       }
       .detail { height: 70vh; z-index: 26; } /* detail sheet sits above the list */
       .legend-wrap { display: none; }
+
+      /* Retractable handle: tap to collapse to a peek, tap again to reopen. */
+      .grab {
+        display: flex; align-items: center; justify-content: center;
+        flex: none; height: 26px; padding: 0; cursor: pointer; border: none;
+        background: var(--surface-glass);
+        backdrop-filter: blur(14px) saturate(1.1);
+        border: 1px solid var(--surface-glass-brd); border-bottom: none;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        box-shadow: var(--shadow-md);
+      }
+      .grab span { width: 42px; height: 4px; border-radius: 2px; background: var(--text-subtle); opacity: 0.55; }
+      .panel > :not(.grab), .detail > :not(.grab) {
+        flex: 1; min-height: 0;
+        border-top-left-radius: 0; border-top-right-radius: 0;
+      }
+      .panel.collapsed, .detail.collapsed { height: 26px; }
     }
   `;
 
@@ -135,6 +157,9 @@ export class AppShell extends LitElement {
   @state() private basemapMenuOpen = false;
   @state() private selectedPointId?: number;
   @state() private gallery?: { photos: GalleryPhoto[]; index: number };
+  /** Mobile bottom-sheet collapse states. */
+  @state() private panelCollapsed = false;
+  @state() private detailCollapsed = false;
 
   private offRoute?: () => void;
 
@@ -152,6 +177,9 @@ export class AppShell extends LitElement {
       const routeChanged = r.name !== this.route.name || (r as { slug?: string }).slug !== (this.route as { slug?: string }).slug;
       this.route = r;
       this.selectedPointId = currentPointId();
+      // Re-open the sheets when their content changes.
+      this.panelCollapsed = false;
+      this.detailCollapsed = false;
       if (this.selectedPointId == null) {
         this.globe?.clearSelectedPulse();
         this.lastFlownId = undefined;
@@ -344,17 +372,33 @@ export class AppShell extends LitElement {
       </div>
 
       <div
-        class="panel"
+        class="panel ${this.panelCollapsed ? 'collapsed' : ''}"
         @massif-selected=${this.onMassifSelected}
         @show-massif=${this.onShowMassif}
       >
+        <button
+          class="grab"
+          aria-label=${t.toggleSheet()}
+          aria-expanded=${!this.panelCollapsed}
+          @click=${() => (this.panelCollapsed = !this.panelCollapsed)}
+        >
+          <span></span>
+        </button>
         ${this.route.name === 'massif'
           ? html`<massif-panel .slug=${this.route.slug}></massif-panel>`
           : html`<discovery-panel></discovery-panel>`}
       </div>
 
       ${this.selectedPointId != null
-        ? html`<div class="detail">
+        ? html`<div class="detail ${this.detailCollapsed ? 'collapsed' : ''}">
+            <button
+              class="grab"
+              aria-label=${t.toggleSheet()}
+              aria-expanded=${!this.detailCollapsed}
+              @click=${() => (this.detailCollapsed = !this.detailCollapsed)}
+            >
+              <span></span>
+            </button>
             <point-detail-panel .pointId=${this.selectedPointId}></point-detail-panel>
           </div>`
         : ''}

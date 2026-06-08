@@ -246,6 +246,10 @@
   <source>IGN topo</source>
   <target>IGN topo</target>
 </trans-unit>
+<trans-unit id="toggle_sheet">
+  <source>Collapse or expand the panel</source>
+  <target>Replier ou déplier le panneau</target>
+</trans-unit>
 </body>
 </file>
 </xliff>

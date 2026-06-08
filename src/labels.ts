@@ -54,6 +54,8 @@ export const t = {
   catSommet: () => msg('Summit', { id: 'cat_sommet' }),
   catAbri: () => msg('Shelter / cave', { id: 'cat_abri' }),
 
+  toggleSheet: () => msg('Collapse or expand the panel', { id: 'toggle_sheet' }),
+
   menuTitle: () => msg('Menu', { id: 'menu_title' }),
   menuOpen: () => msg('Open menu', { id: 'menu_open' }),
   menuClose: () => msg('Close menu', { id: 'menu_close' }),

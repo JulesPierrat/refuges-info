@@ -70,5 +70,6 @@
 'search_searching': `Recherche…`,
 'tagline': `Refuges, cabanes et points d'eau de montagne`,
 'theme_toggle': `Basculer le thème clair/sombre`,
+'toggle_sheet': `Replier ou déplier le panneau`,
     };
   
